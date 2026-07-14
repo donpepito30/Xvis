@@ -54,8 +54,9 @@ const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-async function startServer() {
-  const app = express();
+const app = express();
+
+async function createServer() {
   const PORT = 3000;
 
   app.use(express.json({ limit: '2mb' }));
@@ -125,15 +126,13 @@ async function startServer() {
       const result = await withRetry(async () => {
         return await ai.models.generateContent({
           model: "gemini-2.0-flash",
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          config: {
-            responseMimeType: "application/json"
-          }
+          contents: [{ role: "user", parts: [{ text: prompt }] }]
         });
       });
 
       // Extract JSON from response based on @google/genai signature
-      const intelReport = result.text ? JSON.parse(result.text) : { summary: "Market data streams are currently fragmented.", trends: ["Real-time data sync", "Regional expansion"], featuredModel: "N/A" };
+      const resultText = (result as any).text;
+      const intelReport = resultText ? JSON.parse(resultText) : { summary: "Market data streams are currently fragmented.", trends: ["Real-time data sync", "Regional expansion"], featuredModel: "N/A" };
 
       res.json(intelReport);
     } catch (error) {
@@ -157,9 +156,14 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[System] MatchIntel Elite Server operational on port ${PORT}`);
-  });
+  // Only listen if not running as a Vercel Serverless Function
+  if (process.env.VERCEL !== "1") {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`[System] MatchIntel Elite Server operational on port ${PORT}`);
+    });
+  }
 }
 
-startServer();
+createServer();
+
+export default app;
