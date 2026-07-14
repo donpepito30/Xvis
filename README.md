@@ -1,11 +1,26 @@
-<div align="center">
+# MatchIntel Elite
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Professional sports and streaming intelligence analytics platform.
 
-  <h1>Built with AI Studio</h2>
+## Architecture
+- **Backend**: Express.js with TypeScript (`server.ts`).
+- **Frontend**: Vanilla JS/Tailwind and React hybrid approach.
+- **AI**: Gemini 2.0 Flash for real-time market analysis.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Core Features
+- **Discovery Proxy**: Secure and resilient data synchronization with retry logic.
+- **AI Analysis**: Automated trend detection and model featuring.
+- **Elite UI**: Modern dark theme with high-fidelity animations and neural lighting.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## Quick Start
+1. Install dependencies: `npm install`
+2. Configure `.env` with your `GEMINI_API_KEY`.
+3. Start development: `npm run dev`
+4. Build for production: `npm run build`
 
-</div>
+## API Endpoints
+- `GET /api/models`: List available intelligence nodes.
+- `POST /api/analyze`: Neural market analysis of current nodes.
+
+---
+*Operational Excellence in Real-Time Intelligence.*
