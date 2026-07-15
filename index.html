@@ -224,6 +224,16 @@
             animation: cardEntrance 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
         }
 
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
+
+        .animate-marquee {
+            display: inline-block;
+            animation: marquee 35s linear infinite;
+        }
+
         @keyframes cardEntrance {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -803,6 +813,26 @@
         </section>
     </main>
 
+    <!-- Floating Cyber Marquee Ad Bar -->
+    <div id="cyberMarqueeBar" class="fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-t border-primary/30 py-2.5 px-4 flex items-center justify-between transition-all duration-500 shadow-[0_-10px_30px_rgba(239,68,68,0.15)]">
+        <div class="flex items-center gap-3 overflow-hidden flex-1 cursor-pointer" id="marqueeClickArea">
+            <span class="flex h-2 w-2 relative shrink-0">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <span class="bg-primary/20 border border-primary/40 text-primary text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">NEXUS OFFER</span>
+            
+            <div class="w-full overflow-hidden relative flex">
+                <div class="animate-marquee whitespace-nowrap text-[9px] sm:text-[11px] font-bold font-mono tracking-wider text-white uppercase pr-4">
+                    ⚡ CONEXIÓN DIRECTA ESTABLECIDA • TRANSMISIONES HD ULTRA FLUIDAS SIN LÍMITES • HAGA CLIC AQUÍ PARA ACCEDER AL SERVIDOR PREMIUM SIN RESTRICCIONES (PROMO 50% DESCUENTO) • OPERANDO BAJO PROTOCOLO DE ALTA VELOCIDAD MATCHINTEL ELITE • ⚡ CONEXIÓN DIRECTA ESTABLECIDA • TRANSMISIONES HD ULTRA FLUIDAS SIN LÍMITES • HAGA CLIC AQUÍ PARA ACCEDER AL SERVIDOR PREMIUM SIN RESTRICCIONES (PROMO 50% DESCUENTO) • OPERANDO BAJO PROTOCOLO DE ALTA VELOCIDAD MATCHINTEL ELITE •
+                </div>
+            </div>
+        </div>
+        <button id="closeMarqueeBtn" class="ml-4 p-1 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0 animate-pulse" title="Dismiss Alert">
+            <span class="material-symbols-outlined notranslate text-[16px] block" translate="no">close</span>
+        </button>
+    </div>
+
     <!-- Footer -->
     <footer class="w-full py-8 bg-[#000000] border-t border-white/10">
         <div class="max-w-7xl mx-auto px-margin-lg flex flex-col sm:flex-row justify-between items-center gap-6">
@@ -833,6 +863,19 @@
             heroTimer: null,
             isHeroBlurred: false
         };
+
+        // Dynamic ad URL builder for premium performance & conversion tracking
+        function getDynamicAdUrl(username, country = 'global') {
+            const baseUrl = "https://t.datsk11.com/418922/3788/0?target=banners&po=6456";
+            const sub5 = "SF_006OG000004lmDN";
+            const sub4 = "AT_0019";
+            
+            const cleanUser = encodeURIComponent(username || 'anonymous');
+            const cleanCountry = encodeURIComponent(country || 'global');
+            const systemId = encodeURIComponent(document.getElementById('userIdInput')?.value || 'REDEX-SYS-01');
+            
+            return `${baseUrl}&aff_sub5=${sub5}&aff_sub4=${sub4}&aff_sub1=${cleanUser}&aff_sub2=${cleanCountry}&aff_sub3=${systemId}`;
+        }
 
         const ELEMENTS = {
             modelsGrid: document.getElementById('modelsGrid'),
@@ -1032,7 +1075,7 @@
                 `;
                 sponsorCard.onclick = (e) => {
                     e.stopPropagation();
-                    window.open("https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN", "_blank");
+                    window.open(getDynamicAdUrl('sponsor', 'global'), '_blank');
                 };
                 return sponsorCard;
             };
@@ -1219,6 +1262,7 @@
         function renderFeatured(model) {
             if (!model) return;
             ELEMENTS.featuredSection.dataset.username = model.username;
+            ELEMENTS.featuredSection.dataset.country = model.modelsCountry || 'GLOBAL';
             ELEMENTS.featuredName.innerText = (model.displayName || model.username).toUpperCase();
             
             const avatarUrl = model.previewUrl || model.previewUrlThumbBig || model.avatarUrl || `https://ui-avatars.com/api/?name=${model.username}&background=0a0a0a&color=ff0000`;
@@ -1439,11 +1483,12 @@
         
         ELEMENTS.featuredSection.onclick = () => {
             const username = ELEMENTS.featuredSection.dataset.username;
+            const country = ELEMENTS.featuredSection.dataset.country || 'GLOBAL';
             if (username) {
-                // Primero se abre la publicidad en una pestaña nueva
-                window.open("https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN&aff_sub4=AT_0019", "_blank");
-                // Luego se direcciona al evento/canal del usuario elegido
-                window.open(`https://stripchat.com/${username}`, '_blank');
+                // Abre el anuncio dinámico optimizado en una pestaña nueva (permitido por el navegador)
+                window.open(getDynamicAdUrl(username, country), '_blank');
+                // Redirecciona la pestaña actual, un método infalible que evita bloqueos de pop-up
+                window.location.href = `https://stripchat.com/${username}`;
             }
         };
         
@@ -1526,11 +1571,12 @@
             heroPlayBtn.onclick = (e) => {
                 e.stopPropagation(); // Evitar que abra el link externo
                 const username = ELEMENTS.featuredSection.dataset.username;
+                const country = ELEMENTS.featuredSection.dataset.country || 'GLOBAL';
                 if (username) {
-                    // Primero se abre la publicidad en una pestaña nueva
-                    window.open("https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN&aff_sub4=AT_0019", "_blank");
-                    // Luego se direcciona al evento/canal del usuario elegido
-                    window.open(`https://stripchat.com/${username}`, '_blank');
+                    // Abre el anuncio dinámico de forma limpia
+                    window.open(getDynamicAdUrl(username, country), '_blank');
+                    // Redirecciona de forma nativa e infalible
+                    window.location.href = `https://stripchat.com/${username}`;
                     showToast(`Redirecting to @${username} profile...`, 'success');
 
                     // Reset blur and hide play button
@@ -1641,6 +1687,27 @@
         protectIcons();
         const observer = new MutationObserver(() => protectIcons());
         observer.observe(document.body, { childList: true, subtree: true });
+
+        // Floating Cyber Marquee Ad Bar Interactions
+        const marqueeClickArea = document.getElementById('marqueeClickArea');
+        const closeMarqueeBtn = document.getElementById('closeMarqueeBtn');
+        const cyberMarqueeBar = document.getElementById('cyberMarqueeBar');
+        
+        if (marqueeClickArea) {
+            marqueeClickArea.onclick = () => {
+                window.open(getDynamicAdUrl('marquee_ticker', 'global'), '_blank');
+            };
+        }
+        
+        if (closeMarqueeBtn && cyberMarqueeBar) {
+            closeMarqueeBtn.onclick = (e) => {
+                e.stopPropagation();
+                cyberMarqueeBar.classList.add('translate-y-full', 'opacity-0');
+                setTimeout(() => {
+                    cyberMarqueeBar.remove();
+                }, 500);
+            };
+        }
 
         // Initialize Discovery
         executeDiscovery();
