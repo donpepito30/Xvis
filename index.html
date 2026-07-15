@@ -806,9 +806,8 @@
             
             <!-- Pagination -->
             <div id="paginationContainer" class="mt-16 flex flex-col items-center gap-6 pb-16 hidden">
-                <div id="pageNumbers" class="flex gap-2"></div>
-                <div id="paginationStats" class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest"></div>
-
+                <div id="pageNumbers" class="flex flex-wrap justify-center gap-1.5 sm:gap-2 max-w-full px-4"></div>
+                <div id="paginationStats" class="text-[10px] font-bold text-white/50 uppercase tracking-widest"></div>
             </div>
         </section>
     </main>
@@ -1191,20 +1190,85 @@
             
             const startIdx = (state.currentPage - 1) * modelsPerPage + 1;
             const endIdx = Math.min(state.currentPage * modelsPerPage, state.filteredModels.length);
-            ELEMENTS.paginationStats.innerText = `DISPLAYING ${startIdx}-${endIdx} OF ${state.filteredModels.length} NODES`;
+            ELEMENTS.paginationStats.innerText = `MOSTRANDO ${startIdx}-${endIdx} DE ${state.filteredModels.length} NODOS`;
 
-            for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+            if (totalPages <= 1) return;
+
+            // Helper function to create page button with robust design
+            function createPageButton(page, text, isActive = false, isDisabled = false) {
                 const btn = document.createElement('button');
-                btn.className = `px-4 py-2 rounded-lg text-[10px] font-bold transition-all ${state.currentPage === i ? 'bg-primary text-white' : 'bg-white/5 text-on-surface-variant hover:bg-white/10'}`;
-                btn.innerText = i;
-                btn.onclick = (e) => {
-                    e.stopPropagation();
-                    state.currentPage = i;
-                    renderModels();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                };
-                ELEMENTS.pageNumbers.appendChild(btn);
+                btn.className = `min-w-[36px] h-9 px-2.5 rounded-lg text-[10px] font-black tracking-wider uppercase flex items-center justify-center transition-all cursor-pointer ${
+                    isActive 
+                        ? 'bg-primary text-white shadow-[0_0_12px_rgba(255,0,0,0.4)] border border-primary' 
+                        : isDisabled 
+                            ? 'bg-white/2 text-white/20 cursor-not-allowed border border-transparent opacity-40' 
+                            : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/5 hover:border-white/10 active:scale-95'
+                }`;
+                btn.innerText = text;
+                
+                if (!isDisabled) {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        state.currentPage = page;
+                        renderModels();
+                        
+                        // Scroll back to models grid cleanly
+                        const modelsGrid = document.getElementById('modelsGrid');
+                        if (modelsGrid) {
+                            modelsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        } else {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    };
+                }
+                return btn;
             }
+
+            // Previous Button
+            const prevBtn = createPageButton(state.currentPage - 1, '‹', false, state.currentPage === 1);
+            ELEMENTS.pageNumbers.appendChild(prevBtn);
+
+            // Determine page range to show with sliding window
+            let pages = [];
+            if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                pages.push(1);
+
+                if (state.currentPage <= 4) {
+                    pages.push(2, 3, 4, 5);
+                    pages.push('...');
+                    pages.push(totalPages);
+                } else if (state.currentPage >= totalPages - 3) {
+                    pages.push('...');
+                    pages.push(totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1);
+                    pages.push(totalPages);
+                } else {
+                    pages.push('...');
+                    pages.push(state.currentPage - 1, state.currentPage, state.currentPage + 1);
+                    pages.push('...');
+                    pages.push(totalPages);
+                }
+            }
+
+            // Render each item
+            pages.forEach(p => {
+                if (p === '...') {
+                    const span = document.createElement('span');
+                    span.className = 'min-w-[36px] h-9 flex items-center justify-center text-white/30 text-[10px] font-bold select-none';
+                    span.innerText = '...';
+                    ELEMENTS.pageNumbers.appendChild(span);
+                } else {
+                    const btn = createPageButton(p, String(p), p === state.currentPage);
+                    ELEMENTS.pageNumbers.appendChild(btn);
+                }
+            });
+
+            // Next Button
+            const nextBtn = createPageButton(state.currentPage + 1, '›', false, state.currentPage === totalPages);
+            ELEMENTS.pageNumbers.appendChild(nextBtn);
         }
 
         async function executeDiscovery() {
