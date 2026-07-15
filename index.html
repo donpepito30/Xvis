@@ -289,6 +289,66 @@
             cursor: pointer;
         }
     </style>
+    <!-- 
+        ========================================================================
+        MÓDULO DE PUBLICIDAD / ADVERTISING INTEGRATION MODULE
+        ========================================================================
+        ANÁLISIS DEL CÓDIGO PUBLICITARIO:
+        - Proveedor: Widget de cámaras externas de crxcr2.com (im_jerky).
+        - Parámetros clave:
+          * lang=en: Establece el idioma predeterminado en inglés.
+          * mode=prerecorded: Configura la reproducción de transmisiones en modo pregrabado.
+          * outlinkUrl: Enlace de afiliado de redirección/seguimiento (t.datsk11.com)
+            con identificadores de campaña para atribución (aff_sub4 y aff_sub5).
+        ========================================================================
+    -->
+    <script defer src="https://crxcr2.com/cams-widget-ext/im_jerky?&lang=en&mode=prerecorded&outlinkUrl=https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN&aff_sub4=AT_0018"></script>
+
+    <!-- 
+        ========================================================================
+        MÓDULO DE PUBLICIDAD: POPIN REDIRECCIÓN (AFFSTENTIAL OVERLAY)
+        ========================================================================
+        ANÁLISIS DEL CÓDIGO PUBLICITARIO:
+        - Proveedor: PopIn Affstitial de crxcra.com.
+        - Lógica: Intercepta y redirecciona interacciones mediante un overlay premium.
+        - Configuración:
+          * url: Redirección de afiliado para monetización VIP.
+          * contentType: overlay (capa superpuesta interactiva de pantalla completa).
+          * coverOverlay: true (cobertura total de seguridad).
+          * expireDays: 0.01 (frecuencia óptima de impresión de anuncios).
+        ========================================================================
+    -->
+    <script src="https://crxcra.com/popin/latest/affstitial-min.js"></script>
+    <script>
+        var crakPopInParamsOverlay = {
+            url: 'https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN&aff_sub4=AT_0019',
+            decryptUrl: false,
+            contentType: 'overlay',
+            coverOverlay: true, 
+            expireDays: 0.01
+        };
+    </script>
+
+    <!-- 
+        ========================================================================
+        MÓDULO DE PUBLICIDAD: POPUNDER INTELIGENTE (SCFTP9 MULTI-TAB)
+        ========================================================================
+        ANÁLISIS DEL CÓDIGO PUBLICITARIO:
+        - Proveedor: Sistema Popunder de static.scptp9.com (mnpw3.js).
+        - Lógica: Añade un disparador de nueva pestaña altamente optimizado en clics.
+        - Configuración:
+          * url: Redirección con parámetros de campaña avanzados para atribución premium (aff_sub4=AT_0005).
+          * newTab: true (abre de manera no intrusiva en una nueva pestaña del navegador).
+          * cookieExpires: 86401 (cooldown de 24 horas y 1 segundo para mejorar la experiencia de usuario).
+        ========================================================================
+    -->
+    <script type="text/javascript" src="//static.scptp9.com/mnpw3.js"></script>
+    <script>
+        mnpw.add('https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN&aff_sub4=AT_0005&pud=scptp9', {
+            newTab: true, 
+            cookieExpires: 86401
+        });
+    </script>
 </head>
 <body class="custom-scrollbar bg-black overflow-x-hidden font-body-md">
     <div id="toastContainer"></div>
@@ -648,6 +708,26 @@
                 </div>
             </details>
 
+            <!-- Premium Sponsor Badge in Sidebar -->
+            <div class="space-y-3 bg-red-950/20 border border-primary/20 rounded-2xl p-4 transition-all hover:border-primary/50 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-[8px] font-black tracking-[0.2em] text-primary uppercase">SPONSOR ENLACE</span>
+                    <span class="bg-primary/20 text-primary text-[6px] font-black px-1 rounded uppercase tracking-wider">AD</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                        <span class="material-symbols-outlined notranslate text-xl" translate="no">workspace_premium</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-[11px] font-bold text-white uppercase tracking-wider truncate">REDEX PREMIUM VIP</h3>
+                        <p class="text-[8px] font-medium text-on-surface-variant uppercase opacity-60">Sincronización Directa de Nodos</p>
+                    </div>
+                </div>
+                <a href="https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN" target="_blank" rel="noopener noreferrer" class="block w-full bg-primary hover:bg-red-700 text-white text-center py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">
+                    CONECTAR NODO VIP
+                </a>
+            </div>
+
             <!-- System Debug Panel -->
             <div class="space-y-3 bg-white/[0.02] border border-white/5 rounded-2xl p-4">
                 <p class="text-[10px] font-bold tracking-[0.2em] text-zinc-500 uppercase pl-1">⚙️ System Debug</p>
@@ -916,8 +996,9 @@
                 return name.includes(query) || country.includes(query);
             });
 
-            const start = (state.currentPage - 1) * state.pageSize;
-            const end = start + state.pageSize;
+            const modelsPerPage = state.pageSize - 1; // 11 models
+            const start = (state.currentPage - 1) * modelsPerPage;
+            const end = start + modelsPerPage;
             const currentSlice = state.filteredModels.slice(start, end);
 
             if (currentSlice.length === 0) {
@@ -927,7 +1008,64 @@
             }
 
             const fragment = document.createDocumentFragment();
+            let sponsorInserted = false;
+
+            const createSponsorCard = () => {
+                const sponsorCard = document.createElement('div');
+                sponsorCard.className = 'glass-card overflow-hidden group animate-card flex-shrink-0 w-[calc(33.333%-8px)] min-w-[105px] snap-start md:w-auto md:min-w-0 md:flex-shrink cursor-pointer border border-primary/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]';
+                sponsorCard.style.animationDelay = '0.2s';
+                sponsorCard.innerHTML = `
+                    <div class="relative aspect-[4/5] w-full bg-[#0a0a0a] flex flex-col justify-between p-3 sm:p-5 overflow-hidden">
+                        <div class="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-color-dodge transition-all duration-700 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600');"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80"></div>
+                        
+                        <div class="relative z-10 flex justify-between items-center w-full">
+                            <div class="glass-chip px-1.5 py-0.5 sm:px-3 sm:py-1 flex items-center gap-1 text-[7px] sm:text-[10px] font-bold text-primary uppercase border border-primary/30 animate-pulse">
+                                <span class="material-symbols-outlined notranslate text-[9px] sm:text-[12px]" translate="no">workspace_premium</span>
+                                RECOMENDADO
+                            </div>
+                            <div class="bg-primary/20 border border-primary/40 text-primary px-1 sm:px-2 py-0.5 rounded text-[6px] sm:text-[9px] font-black uppercase tracking-widest">
+                                AD
+                            </div>
+                        </div>
+                        
+                        <div class="relative z-10 my-auto text-center px-1">
+                            <h5 class="text-[9px] sm:text-[15px] font-black tracking-wider text-white uppercase leading-tight drop-shadow-md">
+                                ACCESO VIP PREMIUM
+                            </h5>
+                            <p class="text-[6px] sm:text-[9px] font-medium text-white/70 mt-1 uppercase leading-normal">
+                                Transmisiones de Alta Fidelidad Sin Límites
+                            </p>
+                        </div>
+
+                        <div class="relative z-10 w-full">
+                            <div class="w-full bg-primary hover:bg-red-700 text-white text-center py-1 sm:py-2.5 rounded-lg text-[7px] sm:text-[11px] font-black uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                                CONECTAR NODO
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 sm:p-5 flex justify-between items-end bg-[#0a0a0a] border-t border-white/5 relative z-10">
+                        <div class="min-w-0 flex-1">
+                            <h4 class="text-[9px] sm:text-[16px] font-headline-md font-bold uppercase tracking-tight text-white mb-0.5 sm:mb-1 truncate pr-1">REDEX SPONSOR CONNECT</h4>
+                            <p class="text-[7px] sm:text-[10px] font-medium text-on-surface-variant uppercase opacity-60 truncate">Sponsor: datsk11.com</p>
+                        </div>
+                        <div class="border border-white/20 px-1 py-0.5 sm:px-2 sm:py-1 rounded sm:rounded-lg text-[7px] sm:text-[10px] font-bold text-white/50 uppercase leading-none shrink-0">VIP</div>
+                    </div>
+                `;
+                sponsorCard.onclick = (e) => {
+                    e.stopPropagation();
+                    window.open("https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN", "_blank");
+                };
+                return sponsorCard;
+            };
+
             currentSlice.forEach((model, idx) => {
+                // If we hit index 5, insert the sponsor card first to complete row 2 beautifully
+                if (idx === 5) {
+                    fragment.appendChild(createSponsorCard());
+                    sponsorInserted = true;
+                }
+
                 const username = model.username;
                 const avatar = model.previewUrl || model.previewUrlThumbBig || model.avatarUrl || `https://ui-avatars.com/api/?name=${username}&background=0a0a0a&color=ff0000`;
                 const hlsUrl = model.stream && model.stream.urls ? (model.stream.urls['240p'] || model.stream.urls['original']) : '';
@@ -954,13 +1092,13 @@
 
                         <div class="absolute top-1 left-1 sm:top-4 sm:left-4 flex gap-1 sm:gap-2">
                             <div class="glass-chip px-1.5 py-0.5 sm:px-3 sm:py-1 flex items-center gap-1 sm:gap-2 text-[7px] sm:text-[10px] font-bold text-on-surface uppercase border border-white/10">
-                                <span class="material-symbols-outlined text-[9px] sm:text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">location_on</span> 
+                                <span class="material-symbols-outlined notranslate text-[9px] sm:text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;" translate="no">location_on</span> 
                                 ${model.modelsCountry ? model.modelsCountry.toUpperCase() : 'GLOB'}
                             </div>
                         </div>
                         <div class="absolute top-1 right-1 sm:top-4 sm:right-4">
                             <div class="bg-primary px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-xl text-[7px] sm:text-[10px] font-bold text-on-primary flex items-center gap-0.5 sm:gap-1">
-                                <span class="material-symbols-outlined text-[9px] sm:text-[12px]">add</span> ${powerScore}
+                                <span class="material-symbols-outlined notranslate text-[9px] sm:text-[12px]" translate="no">add</span> ${powerScore}
                             </div>
                         </div>
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
@@ -992,17 +1130,23 @@
                 fragment.appendChild(card);
             });
 
+            // If we have fewer than 6 models and sponsor wasn't inserted, append at the end
+            if (!sponsorInserted && currentSlice.length > 0) {
+                fragment.appendChild(createSponsorCard());
+            }
+
             ELEMENTS.modelsGrid.appendChild(fragment);
             updatePaginationControls();
         }
 
         function updatePaginationControls() {
-            const totalPages = Math.ceil(state.filteredModels.length / state.pageSize);
+            const modelsPerPage = state.pageSize - 1; // 11
+            const totalPages = Math.ceil(state.filteredModels.length / modelsPerPage);
             ELEMENTS.paginationContainer.classList.toggle('hidden', totalPages <= 1);
             ELEMENTS.pageNumbers.innerHTML = '';
             
-            const startIdx = (state.currentPage - 1) * state.pageSize + 1;
-            const endIdx = Math.min(state.currentPage * state.pageSize, state.filteredModels.length);
+            const startIdx = (state.currentPage - 1) * modelsPerPage + 1;
+            const endIdx = Math.min(state.currentPage * modelsPerPage, state.filteredModels.length);
             ELEMENTS.paginationStats.innerText = `DISPLAYING ${startIdx}-${endIdx} OF ${state.filteredModels.length} NODES`;
 
             for (let i = 1; i <= Math.min(totalPages, 5); i++) {
