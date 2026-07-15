@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -54,78 +53,84 @@ const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
 
 const app = express();
 
-async function createServer() {
-  const PORT = 3000;
+app.use(express.json({ limit: '2mb' }));
 
-  app.use(express.json({ limit: '2mb' }));
+// Global Middleware
+app.use((req, res, next) => {
+  res.header("X-App-Engine", "REDEX-Central-Core");
+  next();
+});
 
-  // Global Middleware
-  app.use((req, res, next) => {
-    res.header("X-App-Engine", "REDEX-Central-Core");
-    next();
-  });
+// Direct Favicon Redirect Route to handle all background browser icon requests
+app.get("/favicon.ico", (req, res) => {
+  res.redirect("https://i.ibb.co/DDyZd6b2/redex-logo-transparent.png");
+});
 
-  // Direct Favicon Redirect Route to handle all background browser icon requests
-  app.get("/favicon.ico", (req, res) => {
-    res.redirect("https://i.ibb.co/DDyZd6b2/redex-logo-transparent.png");
-  });
+// Proxy GET: Discover Models with withRetry and Proxy Security
+app.get("/api/models/:type?", rateLimiter, async (req, res) => {
+  try {
+    const { type } = req.params;
+    const baseUrl = type === "online" 
+      ? "https://go.whitetrafsa.com/api/models/online" 
+      : "https://go.whitetrafsa.com/api/models";
 
-  // Proxy GET: Discover Models with withRetry and Proxy Security
-  app.get("/api/models/:type?", rateLimiter, async (req, res) => {
-    try {
-      const { type } = req.params;
-      const baseUrl = type === "online" 
-        ? "https://go.whitetrafsa.com/api/models/online" 
-        : "https://go.whitetrafsa.com/api/models";
+    const queryParams = new URLSearchParams();
+    Object.entries(req.query).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach(v => queryParams.append(key, String(v)));
+      } else if (value) {
+        queryParams.append(key, String(value));
+      }
+    });
 
-      const queryParams = new URLSearchParams();
-      Object.entries(req.query).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          value.forEach(v => queryParams.append(key, String(v)));
-        } else if (value) {
-          queryParams.append(key, String(value));
-        }
-      });
+    const targetUrl = `${baseUrl}?${queryParams.toString()}`;
+    console.log(`[Discovery Proxy] Synchronizing Target: ${targetUrl}`);
 
-      const targetUrl = `${baseUrl}?${queryParams.toString()}`;
-      console.log(`[Discovery Proxy] Synchronizing Target: ${targetUrl}`);
+    const data = await withRetry(async () => {
+      const response = await fetch(targetUrl);
+      if (!response.ok) throw new Error(`API Status ${response.status}`);
+      return response.json();
+    });
 
-      const data = await withRetry(async () => {
-        const response = await fetch(targetUrl);
-        if (!response.ok) throw new Error(`API Status ${response.status}`);
-        return response.json();
-      });
+    res.json(data);
+  } catch (error) {
+    console.log(`[Proxy Link Error] Recovery triggered. Reason: ${error instanceof Error ? error.message : "Network failure"}`);
+    res.status(500).json({ error: "Discovery link unstable. Retrying synchronization." });
+  }
+});
 
-      res.json(data);
-    } catch (error) {
-      console.log(`[Proxy Link Error] Recovery triggered. Reason: ${error instanceof Error ? error.message : "Network failure"}`);
-      res.status(500).json({ error: "Discovery link unstable. Retrying synchronization." });
-    }
-  });
-
-  // Production Assets & SPA Routing
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
+// Production Assets & SPA Routing or Dev Vite Middleware Setup
+if (process.env.NODE_ENV !== "production") {
+  // Dynamically load Vite only in development to keep production bundle clean of dev dependencies
+  import("vite").then(({ createServer: createViteServer }) => {
+    createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
+    }).then(vite => {
+      app.use(vite.middlewares);
+      
+      const PORT = 3000;
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`[System] REDEX Central Dev Server operational on http://localhost:${PORT}`);
+      });
     });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
+  }).catch(err => {
+    console.log(`[Vite Loader Error] Failed to initialize Vite: ${err}`);
+  });
+} else {
+  const distPath = path.join(process.cwd(), "dist");
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
 
-  // Only listen if not running as a Vercel Serverless Function
+  // Only listen on port if not running on Vercel serverless environment
   if (process.env.VERCEL !== "1") {
+    const PORT = 3000;
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`[System] REDEX Central Server operational on port ${PORT}`);
     });
   }
 }
-
-createServer();
 
 export default app;
