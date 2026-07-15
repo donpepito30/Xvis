@@ -820,11 +820,11 @@
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
-            <span class="bg-primary/20 border border-primary/40 text-primary text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">NEXUS OFFER</span>
+            <span class="bg-primary/20 border border-primary/40 text-primary text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">REDEX</span>
             
             <div class="w-full overflow-hidden relative flex">
-                <div class="animate-marquee whitespace-nowrap text-[9px] sm:text-[11px] font-bold font-mono tracking-wider text-white uppercase pr-4">
-                    ⚡ CONEXIÓN DIRECTA ESTABLECIDA • TRANSMISIONES HD ULTRA FLUIDAS SIN LÍMITES • HAGA CLIC AQUÍ PARA ACCEDER AL SERVIDOR PREMIUM SIN RESTRICCIONES (PROMO 50% DESCUENTO) • OPERANDO BAJO PROTOCOLO DE ALTA VELOCIDAD MATCHINTEL ELITE • ⚡ CONEXIÓN DIRECTA ESTABLECIDA • TRANSMISIONES HD ULTRA FLUIDAS SIN LÍMITES • HAGA CLIC AQUÍ PARA ACCEDER AL SERVIDOR PREMIUM SIN RESTRICCIONES (PROMO 50% DESCUENTO) • OPERANDO BAJO PROTOCOLO DE ALTA VELOCIDAD MATCHINTEL ELITE •
+                <div id="tickerText" class="animate-marquee whitespace-nowrap text-[9px] sm:text-[11px] font-bold font-mono tracking-wider text-white uppercase pr-4">
+                    ⚡ ¡RESTRICCIONES ELIMINADAS CON REDEX! • TRANSMISIONES HD ULTRA FLUIDAS SIN LÍMITES • HAGA CLIC AQUÍ PARA ACCEDER AL SERVIDOR PREMIUM CON 50% DE DESCUENTO DIRECTO • ACCESO DIRECTO INMEDIATO SIN ESPERAS • ⚡ ¡RESTRICCIONES ELIMINADAS CON REDEX! • TRANSMISIONES HD ULTRA FLUIDAS SIN LÍMITES • HAGA CLIC AQUÍ PARA ACCEDER AL SERVIDOR PREMIUM CON 50% DE DESCUENTO DIRECTO • ACCESO DIRECTO INMEDIATO SIN ESPERAS •
                 </div>
             </div>
         </div>
@@ -1033,49 +1033,72 @@
 
             const createSponsorCard = () => {
                 const sponsorCard = document.createElement('div');
-                sponsorCard.className = 'glass-card overflow-hidden group animate-card w-full cursor-pointer border border-primary/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]';
+                sponsorCard.className = 'glass-card overflow-hidden group animate-card w-full cursor-pointer border border-primary/20 hover:border-primary/50 transition-all';
                 sponsorCard.style.animationDelay = '0.2s';
+                
+                // Get models from state to use actual API images
+                const apiModels = state.filteredModels.length > 0 ? state.filteredModels : state.allModels;
+                // Choose a random model to act as the sponsor model
+                let sponsorModel = null;
+                if (apiModels.length > 0) {
+                    sponsorModel = apiModels[Math.floor(Math.random() * apiModels.length)];
+                }
+                
+                let bgImage = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600";
+                let modelName = "CONEXIÓN PREMIUM VIP HD";
+                let modelUser = "sponsor";
+                let country = "global";
+                let viewersText = "15,420 ESPECTADORES";
+                
+                if (sponsorModel) {
+                    bgImage = sponsorModel.previewUrl || sponsorModel.previewUrlThumbBig || sponsorModel.avatarUrl || bgImage;
+                    modelName = (sponsorModel.displayName || sponsorModel.username).toUpperCase();
+                    modelUser = sponsorModel.username;
+                    country = sponsorModel.modelsCountry || 'GLOBAL';
+                    viewersText = `${(sponsorModel.viewersCount || 14820).toLocaleString()} ESPECTADORES`;
+                }
+                
                 sponsorCard.innerHTML = `
-                    <div class="relative aspect-[4/5] w-full bg-[#0a0a0a] flex flex-col justify-between p-3 sm:p-5 overflow-hidden">
-                        <div class="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-color-dodge transition-all duration-700 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600');"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80"></div>
+                    <div class="relative aspect-[4/5] w-full transition-all bg-[#0a0a0a]">
+                        <img class="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" src="${bgImage}" loading="lazy">
                         
-                        <div class="relative z-10 flex justify-between items-center w-full">
-                            <div class="glass-chip px-1.5 py-0.5 sm:px-3 sm:py-1 flex items-center gap-1 text-[7px] sm:text-[10px] font-bold text-primary uppercase border border-primary/30 animate-pulse">
-                                <span class="material-symbols-outlined notranslate text-[9px] sm:text-[12px]" translate="no">workspace_premium</span>
+                        <div class="absolute top-1 left-1 sm:top-4 sm:left-4 flex gap-1 sm:gap-2 z-10">
+                            <div class="glass-chip px-1.5 py-0.5 sm:px-3 sm:py-1 flex items-center gap-1 text-[7px] sm:text-[10px] font-bold text-primary uppercase border border-primary/30 bg-black/60 backdrop-blur-sm animate-pulse">
+                                <span class="material-symbols-outlined notranslate text-[9px] sm:text-[12px]" translate="no">workspace_premium</span> 
                                 RECOMENDADO
                             </div>
-                            <div class="bg-primary/20 border border-primary/40 text-primary px-1 sm:px-2 py-0.5 rounded text-[6px] sm:text-[9px] font-black uppercase tracking-widest">
-                                AD
+                        </div>
+                        <div class="absolute top-1 right-1 sm:top-4 sm:right-4 z-10">
+                            <div class="bg-primary px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-xl text-[7px] sm:text-[10px] font-bold text-on-primary flex items-center gap-0.5 sm:gap-1">
+                                <span class="material-symbols-outlined notranslate text-[9px] sm:text-[12px]" translate="no">workspace_premium</span> ELITE
                             </div>
                         </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                         
-                        <div class="relative z-10 my-auto text-center px-1">
-                            <h5 class="text-[9px] sm:text-[15px] font-black tracking-wider text-white uppercase leading-tight drop-shadow-md">
-                                ACCESO VIP PREMIUM
-                            </h5>
-                            <p class="text-[6px] sm:text-[9px] font-medium text-white/70 mt-1 uppercase leading-normal">
-                                Transmisiones de Alta Fidelidad Sin Límites
-                            </p>
+                        <!-- Premium Action Indicator -->
+                        <div class="absolute inset-0 flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 backdrop-blur-sm z-20 p-4 text-center">
+                            <span class="material-symbols-outlined text-[36px] text-primary mb-2 animate-bounce">bolt</span>
+                            <span class="text-[10px] font-black tracking-widest text-white uppercase leading-normal">ACCEDER A LA TRANSMISIÓN PREMIUM VIP</span>
+                            <span class="text-[7px] text-primary font-bold uppercase tracking-wider mt-2 bg-primary/10 px-2 py-1 rounded border border-primary/20">ENTRAR DIRECTO</span>
                         </div>
 
-                        <div class="relative z-10 w-full">
-                            <div class="w-full bg-primary hover:bg-red-700 text-white text-center py-1 sm:py-2.5 rounded-lg text-[7px] sm:text-[11px] font-black uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-                                CONECTAR NODO
-                            </div>
+                        <div class="absolute bottom-1 left-1 sm:bottom-4 sm:left-4 glass-chip px-1 py-0.5 sm:px-2 sm:py-1 flex items-center gap-1 border border-white/5 z-10 bg-black/40 backdrop-blur-sm">
+                            <span class="active-dot bg-primary"></span>
+                            <span class="text-[7px] sm:text-[10px] font-bold text-on-surface-variant">${viewersText}</span>
                         </div>
                     </div>
                     <div class="p-2 sm:p-5 flex justify-between items-end bg-[#0a0a0a] border-t border-white/5 relative z-10">
                         <div class="min-w-0 flex-1">
-                            <h4 class="text-[9px] sm:text-[16px] font-headline-md font-bold uppercase tracking-tight text-white mb-0.5 sm:mb-1 truncate pr-1">REDEX SPONSOR CONNECT</h4>
-                            <p class="text-[7px] sm:text-[10px] font-medium text-on-surface-variant uppercase opacity-60 truncate">Sponsor: datsk11.com</p>
+                            <h4 class="text-[9px] sm:text-[16px] font-headline-md font-bold uppercase tracking-tight text-white mb-0.5 sm:mb-1 truncate pr-1">${modelName}</h4>
+                            <p class="text-[7px] sm:text-[10px] font-medium text-on-surface-variant uppercase opacity-60 truncate">Sponsor: REDEX Premium</p>
                         </div>
-                        <div class="border border-white/20 px-1 py-0.5 sm:px-2 sm:py-1 rounded sm:rounded-lg text-[7px] sm:text-[10px] font-bold text-white/50 uppercase leading-none shrink-0">VIP</div>
+                        <div class="border border-primary px-1 py-0.5 sm:px-2 sm:py-1 rounded sm:rounded-lg text-[7px] sm:text-[10px] font-bold text-primary uppercase leading-none shrink-0">4K ULTRA</div>
                     </div>
                 `;
                 sponsorCard.onclick = (e) => {
                     e.stopPropagation();
-                    window.open(getDynamicAdUrl('sponsor', 'global'), '_blank');
+                    window.open(getDynamicAdUrl(modelUser, country), '_blank');
+                    window.location.href = `https://stripchat.com/${modelUser}`;
                 };
                 return sponsorCard;
             };
@@ -1709,8 +1732,83 @@
             };
         }
 
-        // Initialize Discovery
+        // Dynamic Ticker Analytics Engine - Aligned with MatchIntel Elite
+        function updateDynamicTicker() {
+            const tickerTextEl = document.getElementById('tickerText');
+            if (!tickerTextEl) return;
+            
+            const onlineUsernames = state.allModels.slice(0, 10).map(m => m.username);
+            
+            const telemetryMessages = [
+                `⚡ ¡RESTRICCIONES ELIMINADAS CON REDEX! • TRANSMISIONES HD ULTRA FLUIDAS SIN LÍMITES • HAGA CLIC AQUÍ PARA ACCEDER AL SERVIDOR PREMIUM CON 50% DE DESCUENTO DIRECTO • ACCESO DIRECTO INMEDIATO SIN ESPERAS •`,
+                `⚡ TRANSMISIONES EN VIVO SIN INTERRUPCIONES • HAGA CLIC AQUÍ PARA DESBLOQUEAR EL ACCESO COMPLETO CON 50% DE DESCUENTO DIRECTO EN REDEX •`,
+                `⚡ DISFRUTA DE CALIDAD PREMIUM ULTRA HD • HAGA CLIC AQUÍ PARA ACCEDER AL CONTENIDO COMPLETO SIN CORTES • ACCESO INMEDIATO CON REDEX •`
+            ];
+            
+            if (onlineUsernames.length > 0) {
+                const randomUser = onlineUsernames[Math.floor(Math.random() * onlineUsernames.length)].toUpperCase();
+                telemetryMessages.push(`⚡ TRANSMISIÓN DESTACADA EN REDEX: @${randomUser} ESTÁ EN VIVO • HAGA CLIC AQUÍ PARA CONECTAR AL CANAL PREMIUM DIRECTO • ACCESO HD COMPLETO •`);
+            }
+            
+            const chosenMessage = telemetryMessages[Math.floor(Math.random() * telemetryMessages.length)];
+            tickerTextEl.innerText = `${chosenMessage} ${chosenMessage}`;
+        }
+        
+        // Silent Conversion Funnel (Dynamic micro-target notifications)
+        let currentFunnelIndex = 0;
+        function startSilentConversionFunnel() {
+            setInterval(() => {
+                const promos = [
+                    {
+                        msg: "📊 [REDEX] Gran aumento de espectadores en vivo ahora mismo. Pulsa aquí para entrar directo en HD sin anuncios.",
+                        type: "success"
+                    },
+                    {
+                        msg: "⚡ [OFERTA REDEX] Servidor Premium disponible en tu zona. Haz clic aquí para obtener acceso ilimitado hoy mismo.",
+                        type: "success"
+                    },
+                    {
+                        msg: "🔒 [REDEX VIP] Evita cortes de transmisión. Pulsa aquí para activar tu cuenta premium con 50% de descuento.",
+                        type: "success"
+                    },
+                    {
+                        msg: "📈 [TENDENCIA REDEX] El acceso de alta velocidad te garantiza transmisiones fluidas. Consigue tu descuento directo aquí.",
+                        type: "success"
+                    }
+                ];
+                
+                const currentPromo = promos[currentFunnelIndex];
+                currentFunnelIndex = (currentFunnelIndex + 1) % promos.length;
+                
+                const toast = document.createElement('div');
+                toast.className = `px-6 py-4 rounded-xl border border-primary/20 bg-primary/10 text-primary backdrop-blur-2xl shadow-2xl text-[10px] font-black uppercase tracking-[0.15em] flex items-center justify-between gap-4 animate-card cursor-pointer hover:bg-primary/20 transition-all`;
+                toast.style.zIndex = "999";
+                toast.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                        <span>${currentPromo.msg}</span>
+                    </div>
+                    <span class="material-symbols-outlined text-[14px] shrink-0 text-primary animate-pulse ml-2">open_in_new</span>
+                `;
+                
+                toast.onclick = (e) => {
+                    e.stopPropagation();
+                    window.open(getDynamicAdUrl('silent_toast', 'global'), '_blank');
+                    toast.remove();
+                };
+                
+                ELEMENTS.toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-4');
+                    setTimeout(() => toast.remove(), 500);
+                }, 5500);
+            }, 55000); // Fires every 55 seconds
+        }
+
+        // Initialize Discovery and Microfunnel systems
         executeDiscovery();
+        setInterval(updateDynamicTicker, 15000);
+        startSilentConversionFunnel();
     </script>
 </body>
 </html>
