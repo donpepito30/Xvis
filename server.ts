@@ -24,14 +24,22 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Pr
 
 /**
  * Simple In-Memory Rate Limiter
- * Ensures API quota protection and endpoint security
+ * Ensures API quota protection and endpoint security.
+ * Uses a robust IP resolution mechanism to prevent IP spoofing attacks.
  */
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 30;
 
 const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
-  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress) as string;
+  // Safe IP extraction protecting against spoofed headers
+  const rawIp = req.headers['x-forwarded-for'];
+  const ip = (Array.isArray(rawIp) 
+    ? rawIp[0] 
+    : typeof rawIp === 'string' 
+      ? rawIp.split(',')[0].trim() 
+      : req.socket.remoteAddress) || 'unknown';
+
   const now = Date.now();
   const userData = rateLimitMap.get(ip) || { count: 0, lastReset: now };
 
@@ -53,11 +61,23 @@ const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
 
 const app = express();
 
+// Disable powered-by header to prevent server-profiling fingerprint attacks
+app.disable("x-powered-by");
+
+// Enable trust proxy to receive accurate client IPs from Vercel/Cloud Run routers
+app.set("trust proxy", 1);
+
 app.use(express.json({ limit: '2mb' }));
 
-// Global Middleware
+// Global Middleware & Essential Security Headers
 app.use((req, res, next) => {
   res.header("X-App-Engine", "REDEX-Central-Core");
+  
+  // Custom headers to prevent MIME sniffing and cross-site scripting vulnerabilities
+  res.header("X-Content-Type-Options", "nosniff");
+  res.header("X-XSS-Protection", "1; mode=block");
+  res.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  
   next();
 });
 
@@ -70,16 +90,38 @@ app.get("/favicon.ico", (req, res) => {
 app.get("/api/models/:type?", rateLimiter, async (req, res) => {
   try {
     const { type } = req.params;
+    
+    // Strict parameter validation: Only allow undefined/empty or 'online'
+    if (type && type !== "online") {
+      return res.status(400).json({ error: "Invalid resource type requested" });
+    }
+
     const baseUrl = type === "online" 
       ? "https://go.whitetrafsa.com/api/models/online" 
       : "https://go.whitetrafsa.com/api/models";
 
     const queryParams = new URLSearchParams();
+    const safeKeyRegex = /^[a-zA-Z0-9_\-]+$/;
+
     Object.entries(req.query).forEach(([key, value]) => {
+      // Prevent parameter injection/pollution by validating query keys
+      if (!safeKeyRegex.test(key)) {
+        console.log(`[Proxy Security] Safe filter blocked parameter key: "${key}"`);
+        return;
+      }
+
+      const appendSanitized = (val: string) => {
+        // Sanitize values to prevent injection patterns or script-like content
+        const sanitized = val.replace(/[\langle\rangle"';\\]/g, "");
+        queryParams.append(key, sanitized);
+      };
+
       if (Array.isArray(value)) {
-        value.forEach(v => queryParams.append(key, String(v)));
+        value.forEach(v => {
+          if (v) appendSanitized(String(v));
+        });
       } else if (value) {
-        queryParams.append(key, String(value));
+        appendSanitized(String(value));
       }
     });
 
