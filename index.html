@@ -1462,6 +1462,9 @@
         ELEMENTS.featuredSection.onclick = () => {
             const username = ELEMENTS.featuredSection.dataset.username;
             if (username) {
+                // Primero se abre la publicidad en una pestaña nueva
+                window.open("https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN&aff_sub4=AT_0019", "_blank");
+                // Luego se direcciona al evento/canal del usuario elegido
                 window.open(`https://stripchat.com/${username}`, '_blank');
             }
         };
@@ -1546,6 +1549,9 @@
                 e.stopPropagation(); // Evitar que abra el link externo
                 const username = ELEMENTS.featuredSection.dataset.username;
                 if (username) {
+                    // Primero se abre la publicidad en una pestaña nueva
+                    window.open("https://t.datsk11.com/418922/3788/0?target=banners&po=6456&aff_sub5=SF_006OG000004lmDN&aff_sub4=AT_0019", "_blank");
+                    // Luego se direcciona al evento/canal del usuario elegido
                     window.open(`https://stripchat.com/${username}`, '_blank');
                     showToast(`Redirecting to @${username} profile...`, 'success');
 
