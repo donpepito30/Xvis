@@ -763,7 +763,6 @@
             <div class="absolute top-6 left-6 md:left-margin-lg z-20 flex items-center gap-4 bg-black/50 backdrop-blur-md px-5 py-3 rounded-full border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
                 <img id="featuredAvatar" src="https://i.ibb.co/DDyZd6b2/redex-logo-transparent.png" class="w-12 h-12 rounded-full object-cover border-2 border-primary shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-300" alt="Avatar">
                 <div class="flex flex-col">
-                    <span class="text-[9px] font-black tracking-[0.2em] text-primary uppercase">ACTIVE NEURAL STREAM</span>
                     <h1 id="featuredName" class="text-lg md:text-xl font-bold uppercase tracking-tight text-white font-sans leading-none">---</h1>
                 </div>
             </div>
@@ -789,23 +788,9 @@
 
         <!-- Main Grid -->
         <section class="px-4 md:px-margin-lg py-margin-md max-w-[1440px] mx-auto">
-            <!-- Carousel Navigation Header on Mobile -->
-            <div class="flex md:hidden items-center justify-between mb-4 bg-white/[0.02] border border-white/5 p-3 rounded-xl">
-                <div class="flex items-center gap-2">
-                    <span class="inline-block w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                    <span class="text-[10px] font-black tracking-[0.2em] text-white uppercase">NEXUS CAROUSEL (3 ROW VIEW)</span>
-                </div>
-                <div class="flex gap-2">
-                    <button id="carouselPrevBtn" class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center bg-white/5 active:scale-95 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-[16px] text-white">chevron_left</span>
-                    </button>
-                    <button id="carouselNextBtn" class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center bg-white/5 active:scale-95 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-[16px] text-white">chevron_right</span>
-                    </button>
-                </div>
-            </div>
 
-            <div id="modelsGrid" class="flex flex-row overflow-x-auto snap-x snap-mandatory gap-3 scroll-smooth scrollbar-none pb-4 md:grid md:grid-cols-3 lg:grid-cols-3 md:gap-8 md:pb-0">
+
+            <div id="modelsGrid" class="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8 pb-4 md:pb-0">
                 <!-- Cards injected here -->
             </div>
             
@@ -813,29 +798,23 @@
             <div id="paginationContainer" class="mt-16 flex flex-col items-center gap-6 pb-16 hidden">
                 <div id="pageNumbers" class="flex gap-2"></div>
                 <div id="paginationStats" class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest"></div>
-                <button id="loadMoreBtn" class="px-10 py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-[10px] uppercase tracking-widest text-on-surface hover:bg-white/10 hover:border-primary transition-all">
-                    Sync More Nodes
-                </button>
+
             </div>
         </section>
     </main>
 
     <!-- Footer -->
-    <footer class="w-full py-16 bg-[#000000] border-t border-white/10">
-        <div class="max-w-7xl mx-auto px-margin-lg flex flex-col md:flex-row justify-between items-center gap-12">
-            <div class="flex flex-col gap-4 items-center md:items-start">
-                <div class="flex items-center gap-4">
-                    <img alt="Redex Logo" class="h-14 w-auto object-contain" src="https://i.ibb.co/Pv8MgvCJ/1000191175-removebg-preview.png"/>
-                    <div class="flex flex-col">
-                        <span class="text-3xl font-black italic tracking-tighter text-on-surface uppercase leading-none">REDEX</span>
-                    </div>
-                </div>
-                <p class="text-[10px] font-medium text-on-surface-variant mt-2 tracking-wide uppercase opacity-50 text-center md:text-left">© 2026 REDEX INTEL DATABASE. OPERATIONAL UNDER REDEX PROTOCOLS.</p>
+    <footer class="w-full py-8 bg-[#000000] border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-margin-lg flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <img alt="Redex Logo" class="h-7 w-auto object-contain" src="https://i.ibb.co/Pv8MgvCJ/1000191175-removebg-preview.png"/>
+                <span class="text-lg font-black italic tracking-tighter text-white uppercase leading-none">REDEX</span>
+                <span class="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] border-l border-white/10 pl-3">© 2026</span>
             </div>
-            <div class="flex flex-wrap justify-center gap-8">
-                <a class="text-[10px] font-bold text-on-surface-variant hover:text-primary transition-all uppercase tracking-widest" href="#">Protocols</a>
-                <a class="text-[10px] font-bold text-on-surface-variant hover:text-primary transition-all uppercase tracking-widest" href="#">Privacy Cipher</a>
-                <a class="text-[10px] font-bold text-on-surface-variant hover:text-primary transition-all uppercase tracking-widest" href="#">Admin Support</a>
+            <div class="flex flex-wrap justify-center gap-6">
+                <a class="text-[8px] font-black text-zinc-500 hover:text-primary transition-all uppercase tracking-[0.2em]" href="#">Política de Privacidad</a>
+                <a class="text-[8px] font-black text-zinc-500 hover:text-primary transition-all uppercase tracking-[0.2em]" href="#">Términos de Servicio</a>
+                <a class="text-[8px] font-black text-zinc-500 hover:text-primary transition-all uppercase tracking-[0.2em]" href="#">Cookies</a>
             </div>
         </div>
     </footer>
@@ -845,7 +824,7 @@
         const state = {
             allModels: [],
             filteredModels: [],
-            pageSize: 12,
+            pageSize: 15,
             currentPage: 1,
             loading: false,
             hlsInstances: new Map(),
@@ -875,7 +854,6 @@
             featuredAvatar: document.getElementById('featuredAvatar'),
             featuredViewers: document.getElementById('featuredViewers'),
             featuredCountry: document.getElementById('featuredCountry'),
-            loadMoreBtn: document.getElementById('loadMoreBtn'),
             discoverFeedBtn: document.getElementById('discoverFeedBtn'),
             languageBtn: document.getElementById('languageBtn'),
             featuredVolumeBtn: document.getElementById('featuredVolumeBtn'),
@@ -1012,7 +990,7 @@
 
             const createSponsorCard = () => {
                 const sponsorCard = document.createElement('div');
-                sponsorCard.className = 'glass-card overflow-hidden group animate-card flex-shrink-0 w-[calc(33.333%-8px)] min-w-[105px] snap-start md:w-auto md:min-w-0 md:flex-shrink cursor-pointer border border-primary/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]';
+                sponsorCard.className = 'glass-card overflow-hidden group animate-card w-full cursor-pointer border border-primary/30 shadow-[0_0_15px_rgba(239,68,68,0.05)]';
                 sponsorCard.style.animationDelay = '0.2s';
                 sponsorCard.innerHTML = `
                     <div class="relative aspect-[4/5] w-full bg-[#0a0a0a] flex flex-col justify-between p-3 sm:p-5 overflow-hidden">
@@ -1073,7 +1051,7 @@
                 const powerScore = calculatePowerScore(model).toFixed(0);
 
                 const card = document.createElement('div');
-                card.className = 'glass-card overflow-hidden group animate-card flex-shrink-0 w-[calc(33.333%-8px)] min-w-[105px] snap-start md:w-auto md:min-w-0 md:flex-shrink cursor-pointer';
+                card.className = 'glass-card overflow-hidden group animate-card w-full cursor-pointer';
                 card.style.animationDelay = `${idx * 0.05}s`;
                 card.dataset.hls = hlsUrl;
                 card.dataset.username = username;
