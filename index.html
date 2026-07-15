@@ -302,7 +302,7 @@
             <!-- Left: Menu Trigger -->
             <div class="flex items-center gap-4 md:gap-8">
                 <button class="p-2 text-white hover:bg-white/10 rounded-full transition-all" id="mobileMenuBtn">
-                    <span class="material-symbols-outlined text-3xl md:text-4xl">menu</span>
+                    <span class="material-symbols-outlined notranslate text-3xl md:text-4xl" translate="no">menu</span>
                 </button>
                 
                 <div class="hidden md:flex items-center gap-6 group cursor-pointer" onclick="location.reload()">
@@ -331,7 +331,7 @@
                 
                 <!-- Desktop Search -->
                 <div class="hidden md:block w-full relative group">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-white transition-colors">search</span>
+                    <span class="material-symbols-outlined notranslate absolute left-4 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-white transition-colors" translate="no">search</span>
                     <input id="intelSearch" class="w-full bg-black/30 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm font-medium focus:outline-none focus:border-white/30 focus:bg-black/50 transition-all placeholder:text-white/30 text-white shadow-inner" placeholder="SEARCH REDEX DATABASE..." type="text"/>
                 </div>
             </div>
@@ -340,11 +340,11 @@
             <div class="flex items-center gap-4 justify-end">
                 <!-- Header User ID Input (Sleek Desktop version) -->
                 <div class="hidden md:flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 focus-within:border-white/30 transition-all">
-                    <span class="material-symbols-outlined text-white/50 text-[18px]">vpn_key</span>
+                    <span class="material-symbols-outlined notranslate text-white/50 text-[18px]" translate="no">vpn_key</span>
                     <input id="headerUserIdInput" class="bg-transparent border-none text-[11px] font-black tracking-widest text-white outline-none w-[120px] placeholder:text-white/20 uppercase" placeholder="USER ID..." type="text" value="REDEX-SYS-01"/>
                 </div>
                 <button id="languageBtn" class="p-2 text-white hover:bg-white/10 rounded-full transition-all">
-                    <span class="material-symbols-outlined text-3xl">language</span>
+                    <span class="material-symbols-outlined notranslate text-3xl" translate="no">language</span>
                 </button>
             </div>
         </div>
@@ -1070,6 +1070,12 @@
                     video.play().catch(() => {});
                 });
                 state.hlsInstances.set(username, hls);
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = hlsUrl;
+                video.muted = !state.audioEnabled;
+                video.addEventListener('loadedmetadata', () => {
+                    video.play().catch(() => {});
+                });
             }
         }
 
@@ -1130,15 +1136,23 @@
             }
 
             const hlsUrl = model.stream && model.stream.urls ? (model.stream.urls['240p'] || model.stream.urls['original']) : '';
-            if (hlsUrl && Hls.isSupported() && video) {
-                const hls = new Hls({ capLevelToPlayerSize: true, autoStartLoad: true });
-                hls.loadSource(hlsUrl);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            if (hlsUrl && video) {
+                if (Hls.isSupported()) {
+                    const hls = new Hls({ capLevelToPlayerSize: true, autoStartLoad: true });
+                    hls.loadSource(hlsUrl);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        video.muted = !state.audioEnabled;
+                        video.play().catch(() => {});
+                    });
+                    state.hlsInstances.set('PRIME', hls);
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = hlsUrl;
                     video.muted = !state.audioEnabled;
-                    video.play().catch(() => {});
-                });
-                state.hlsInstances.set('PRIME', hls);
+                    video.addEventListener('loadedmetadata', () => {
+                        video.play().catch(() => {});
+                    });
+                }
             }
         }
 
@@ -1484,6 +1498,21 @@
                 }
             }, 150);
         });
+
+        // Prevent browser translators from breaking Material Symbols icons globally
+        const protectIcons = () => {
+            document.querySelectorAll('.material-symbols-outlined').forEach(icon => {
+                if (!icon.classList.contains('notranslate')) {
+                    icon.classList.add('notranslate');
+                }
+                if (icon.getAttribute('translate') !== 'no') {
+                    icon.setAttribute('translate', 'no');
+                }
+            });
+        };
+        protectIcons();
+        const observer = new MutationObserver(() => protectIcons());
+        observer.observe(document.body, { childList: true, subtree: true });
 
         // Initialize Discovery
         executeDiscovery();
