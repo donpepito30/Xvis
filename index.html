@@ -769,19 +769,20 @@
             <div class="absolute inset-0 bg-black/10 z-0"></div>
             <video id="featuredVideo" class="absolute inset-0 w-full h-full object-cover opacity-80 transition-all duration-700" muted playsinline></video>
             
-            <!-- Upper Profile Info with Circular Avatar (Clean, no labels) -->
-            <div class="absolute top-6 left-6 md:left-margin-lg z-20 flex items-center gap-4 bg-black/50 backdrop-blur-md px-5 py-3 rounded-full border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-                <img id="featuredAvatar" src="https://i.ibb.co/DDyZd6b2/redex-logo-transparent.png" class="w-12 h-12 rounded-full object-cover border-2 border-primary shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-300" alt="Avatar">
+            <!-- Upper Profile Info with Circular Avatar (Clean, separate layout) -->
+            <div class="absolute top-6 left-6 md:left-margin-lg z-20 flex items-center gap-3 bg-black/60 backdrop-blur-md pl-3 pr-5 py-2 rounded-full border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+                <img id="featuredAvatar" src="https://i.ibb.co/DDyZd6b2/redex-logo-transparent.png" class="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover border-2 border-primary shadow-[0_0_10px_rgba(255,0,0,0.4)] transition-all duration-300" alt="Avatar">
                 <div class="flex flex-col">
-                    <h1 id="featuredName" class="text-lg md:text-xl font-bold uppercase tracking-tight text-white font-sans leading-none">---</h1>
+                    <span class="text-[8px] md:text-[9px] font-black text-primary tracking-wider uppercase">VIVO EN REDEX</span>
+                    <h1 id="featuredName" class="text-xs md:text-sm font-black uppercase tracking-wider text-white font-sans leading-none truncate max-w-[120px] sm:max-w-[180px] md:max-w-none">---</h1>
                 </div>
             </div>
 
-            <!-- Absolute Volume Controller (Top Right) -->
+            <!-- Beautiful Floating Audio Control (Top Right - completely separate) -->
             <div class="absolute top-6 right-6 md:right-margin-lg z-20">
-                <button id="featuredVolumeBtn" class="glass-chip px-4 py-2 flex items-center gap-2 border border-primary/50 hover:bg-primary/20 active:scale-95 transition-all cursor-pointer">
-                    <span class="material-symbols-outlined text-[16px] text-primary" id="featuredVolumeIcon">volume_off</span>
-                    <span id="featuredVolumeText" class="text-label-bold font-label-bold uppercase text-on-surface font-bold text-xs">MUTED</span>
+                <button id="featuredVolumeBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/15 hover:border-primary/50 text-white hover:text-primary active:scale-95 transition-all duration-300 cursor-pointer select-none">
+                    <span class="material-symbols-outlined text-[15px] text-white/60" id="featuredVolumeIcon">volume_off</span>
+                    <span id="featuredVolumeText" class="text-[9px] md:text-[10px] tracking-wider font-black uppercase text-white/90">SIN AUDIO</span>
                 </button>
             </div>
 
@@ -1473,16 +1474,20 @@
             // Update UI components
             if (state.audioEnabled) {
                 ELEMENTS.featuredVolumeIcon.innerText = 'volume_up';
-                ELEMENTS.featuredVolumeText.innerText = 'AUDIO LIVE';
-                ELEMENTS.featuredVolumeBtn.classList.remove('border-primary/50');
-                ELEMENTS.featuredVolumeBtn.classList.add('border-green-500', 'bg-green-500/10');
-                showToast('Audio Unmuted: Live Audio Channels Synchronized', 'info');
+                ELEMENTS.featuredVolumeIcon.classList.remove('text-white/60');
+                ELEMENTS.featuredVolumeIcon.classList.add('text-primary');
+                ELEMENTS.featuredVolumeText.innerText = 'CON AUDIO';
+                ELEMENTS.featuredVolumeBtn.classList.remove('border-white/15', 'bg-black/60');
+                ELEMENTS.featuredVolumeBtn.classList.add('border-primary/50', 'bg-primary/10');
+                showToast('Audio activado', 'info');
             } else {
                 ELEMENTS.featuredVolumeIcon.innerText = 'volume_off';
-                ELEMENTS.featuredVolumeText.innerText = 'MUTED';
-                ELEMENTS.featuredVolumeBtn.classList.remove('border-green-500', 'bg-green-500/10');
-                ELEMENTS.featuredVolumeBtn.classList.add('border-primary/50');
-                showToast('Audio Muted');
+                ELEMENTS.featuredVolumeIcon.classList.remove('text-primary');
+                ELEMENTS.featuredVolumeIcon.classList.add('text-white/60');
+                ELEMENTS.featuredVolumeText.innerText = 'SIN AUDIO';
+                ELEMENTS.featuredVolumeBtn.classList.remove('border-primary/50', 'bg-primary/10');
+                ELEMENTS.featuredVolumeBtn.classList.add('border-white/15', 'bg-black/60');
+                showToast('Audio desactivado', 'info');
             }
             
             // Also update currently playing hover videos in cards
