@@ -1,14 +1,12 @@
 import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 // Persona: Senior Software Engineer - High Reliability Architecture
-// Initialize Google Gemini SDK with strict versioning
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+// Optimized for direct data proxying without AI overhead
 
 /**
  * Robust Network Retry Mechanism (withRetry)
@@ -48,7 +46,7 @@ const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
 
   if (userData.count > MAX_REQUESTS_PER_WINDOW) {
     console.log(`[Rate Limit] Blocked IP: ${ip}`);
-    return res.status(429).json({ error: "Too many requests. Intel access throttled." });
+    return res.status(429).json({ error: "Too many requests. Data access throttled." });
   }
 
   next();
@@ -63,8 +61,13 @@ async function createServer() {
 
   // Global Middleware
   app.use((req, res, next) => {
-    res.header("X-App-Engine", "MatchIntel-Elite-Core");
+    res.header("X-App-Engine", "REDEX-Central-Core");
     next();
+  });
+
+  // Direct Favicon Redirect Route to handle all background browser icon requests
+  app.get("/favicon.ico", (req, res) => {
+    res.redirect("https://i.ibb.co/DDyZd6b2/redex-logo-transparent.png");
   });
 
   // Proxy GET: Discover Models with withRetry and Proxy Security
@@ -95,49 +98,8 @@ async function createServer() {
 
       res.json(data);
     } catch (error) {
-      // Rule 2: No console.error, use informative console.log for production monitoring
       console.log(`[Proxy Link Error] Recovery triggered. Reason: ${error instanceof Error ? error.message : "Network failure"}`);
       res.status(500).json({ error: "Discovery link unstable. Retrying synchronization." });
-    }
-  });
-
-  // AI Intelligence Module: Optimized for gemini-2.0-flash
-  app.post('/api/analyze', rateLimiter, async (req, res) => {
-    try {
-      const { models } = req.body;
-      if (!models || !Array.isArray(models)) throw new Error("Invalid model dataset");
-
-      // Payload optimization for token conservation
-      const intelBuffer = models.slice(0, 40).map(m => ({
-        u: m.username,
-        v: m.viewersCount || m.viewers,
-        t: m.tags?.slice(0, 2),
-        n: m.isNew
-      }));
-
-      const prompt = `System: You are MatchIntel Elite Analysis Engine.
-      Analyze these data nodes: ${JSON.stringify(intelBuffer)}
-      Task:
-      1. Summary (max 2 sentences, professional tone).
-      2. Top 3 Trends (concise).
-      3. Recommend 1 username as "featuredModel".
-      Output: JSON only.`;
-
-      const result = await withRetry(async () => {
-        return await ai.models.generateContent({
-          model: "gemini-2.0-flash",
-          contents: [{ role: "user", parts: [{ text: prompt }] }]
-        });
-      });
-
-      // Extract JSON from response based on @google/genai signature
-      const resultText = (result as any).text;
-      const intelReport = resultText ? JSON.parse(resultText) : { summary: "Market data streams are currently fragmented.", trends: ["Real-time data sync", "Regional expansion"], featuredModel: "N/A" };
-
-      res.json(intelReport);
-    } catch (error) {
-      console.log(`[AI Hub Error] Fallback activated. Error: ${error instanceof Error ? error.message : "Quota exceeded"}`);
-      res.json({ summary: "AI Nexus temporary offline. Reverting to local heuristic analysis.", trends: ["Unknown"], featuredModel: "Agent-X" });
     }
   });
 
@@ -159,7 +121,7 @@ async function createServer() {
   // Only listen if not running as a Vercel Serverless Function
   if (process.env.VERCEL !== "1") {
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`[System] MatchIntel Elite Server operational on port ${PORT}`);
+      console.log(`[System] REDEX Central Server operational on port ${PORT}`);
     });
   }
 }

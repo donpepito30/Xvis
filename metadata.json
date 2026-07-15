@@ -1,6 +1,6 @@
 {
-  "name": "StripCash Analytics Dashboard",
-  "description": "Professional admin dashboard for StripCash / Whitetrafsa Models API with advanced filtering and real-time status tracking.",
+  "name": "REDEX",
+  "description": "High-performance real-time analytics and discovery platform.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
