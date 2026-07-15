@@ -778,11 +778,10 @@
                 </div>
             </div>
 
-            <!-- Beautiful Floating Audio Control (Top Right - completely separate) -->
+            <!-- Beautiful Floating Audio Control (Top Right - completely separate, icon only) -->
             <div class="absolute top-6 right-6 md:right-margin-lg z-20">
-                <button id="featuredVolumeBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/15 hover:border-primary/50 text-white hover:text-primary active:scale-95 transition-all duration-300 cursor-pointer select-none">
-                    <span class="material-symbols-outlined text-[15px] text-white/60" id="featuredVolumeIcon">volume_off</span>
-                    <span id="featuredVolumeText" class="text-[9px] md:text-[10px] tracking-wider font-black uppercase text-white/90">SIN AUDIO</span>
+                <button id="featuredVolumeBtn" class="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center bg-black/60 backdrop-blur-md border border-white/15 hover:border-primary/50 hover:bg-primary/10 active:scale-95 transition-all duration-300 cursor-pointer select-none shadow-[0_4px_12px_rgba(0,0,0,0.5)]" title="Activar/Desactivar Audio">
+                    <span class="material-symbols-outlined text-[18px] md:text-[20px] text-white/70 transition-colors duration-300" id="featuredVolumeIcon">volume_off</span>
                 </button>
             </div>
 
@@ -1347,6 +1346,19 @@
         }
 
         function loadCardToHero(model) {
+            // If the hero/card is blurred or locked, we should NOT load or reactivate the live.
+            // Instead, trigger the premium redirect/ad immediately and wait for user action.
+            const cardEl = document.querySelector(`.glass-card[data-username="${model.username}"]`);
+            const isCardLocked = cardEl && cardEl.classList.contains('card-locked-active');
+            
+            if (state.isHeroBlurred || isCardLocked) {
+                const country = model.modelsCountry || 'GLOBAL';
+                window.open(getDynamicAdUrl(model.username, country), '_blank');
+                window.location.href = `https://stripchat.com/${model.username}`;
+                showToast(`Redireccionando a la transmisión premium de @${model.username}...`, 'success');
+                return;
+            }
+
             // Stop automatic rotation so it doesn't interrupt this manually loaded card
             if (state.featuredRotationInterval) {
                 clearInterval(state.featuredRotationInterval);
@@ -1474,19 +1486,19 @@
             // Update UI components
             if (state.audioEnabled) {
                 ELEMENTS.featuredVolumeIcon.innerText = 'volume_up';
-                ELEMENTS.featuredVolumeIcon.classList.remove('text-white/60');
-                ELEMENTS.featuredVolumeIcon.classList.add('text-primary');
-                ELEMENTS.featuredVolumeText.innerText = 'CON AUDIO';
-                ELEMENTS.featuredVolumeBtn.classList.remove('border-white/15', 'bg-black/60');
-                ELEMENTS.featuredVolumeBtn.classList.add('border-primary/50', 'bg-primary/10');
+                ELEMENTS.featuredVolumeIcon.className = 'material-symbols-outlined text-[18px] md:text-[20px] text-primary transition-colors duration-300';
+                ELEMENTS.featuredVolumeBtn.className = 'w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center bg-primary/10 border border-primary/50 hover:border-primary active:scale-95 transition-all duration-300 cursor-pointer select-none shadow-[0_4px_12px_rgba(255,0,0,0.2)]';
+                if (ELEMENTS.featuredVolumeText) {
+                    ELEMENTS.featuredVolumeText.innerText = 'CON AUDIO';
+                }
                 showToast('Audio activado', 'info');
             } else {
                 ELEMENTS.featuredVolumeIcon.innerText = 'volume_off';
-                ELEMENTS.featuredVolumeIcon.classList.remove('text-primary');
-                ELEMENTS.featuredVolumeIcon.classList.add('text-white/60');
-                ELEMENTS.featuredVolumeText.innerText = 'SIN AUDIO';
-                ELEMENTS.featuredVolumeBtn.classList.remove('border-primary/50', 'bg-primary/10');
-                ELEMENTS.featuredVolumeBtn.classList.add('border-white/15', 'bg-black/60');
+                ELEMENTS.featuredVolumeIcon.className = 'material-symbols-outlined text-[18px] md:text-[20px] text-white/70 transition-colors duration-300';
+                ELEMENTS.featuredVolumeBtn.className = 'w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center bg-black/60 backdrop-blur-md border border-white/15 hover:border-primary/50 hover:bg-primary/10 active:scale-95 transition-all duration-300 cursor-pointer select-none shadow-[0_4px_12px_rgba(0,0,0,0.5)]';
+                if (ELEMENTS.featuredVolumeText) {
+                    ELEMENTS.featuredVolumeText.innerText = 'SIN AUDIO';
+                }
                 showToast('Audio desactivado', 'info');
             }
             
