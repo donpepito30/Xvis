@@ -2,19 +2,6 @@ interface Env {
   // Add any environment variables if needed
 }
 
-// Define PagesFunction type locally to prevent TypeScript errors in the hybrid Node/React configuration
-type PagesFunction<Env = any, Params extends string = string, Data = any> = (
-  context: {
-    request: Request;
-    functionPath: string;
-    next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
-    params: Record<Params, string | string[]>;
-    data: Data;
-    env: Env;
-    waitUntil: (promise: Promise<any>) => void;
-  }
-) => Response | Promise<Response>;
-
 // In-memory rate limiting map (reinitialized per isolate, perfect for basic Edge protection)
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
@@ -46,7 +33,11 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Pr
   }
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const onRequest = async (context: {
+  request: Request;
+  params: Record<string, string | string[]>;
+  env: Env;
+}) => {
   const { request, params } = context;
   
   // Only allow GET requests
@@ -112,12 +103,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     // Fetch from target with retry mechanism
     const data = await withRetry(async () => {
-      const response = await fetch(targetUrl, {
-        headers: {
-          "Accept": "application/json",
-          "User-Agent": "REDEX-Cloudflare-Edge-Agent"
-        }
-      });
+      const response = await fetch(targetUrl);
       if (!response.ok) throw new Error(`API Status ${response.status}`);
       return response.json();
     });
