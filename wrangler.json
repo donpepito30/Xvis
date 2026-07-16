@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "redex",
+  "name": "2redex",
   "compatibility_date": "2026-07-16",
   "observability": {
     "enabled": true
