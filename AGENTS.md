@@ -20,6 +20,14 @@ El frontend utiliza un enfoque moderno y minimalista con **Tailwind CSS v4** par
 - **UI "Elite Nexus"**: Ubicada principalmente en `index.html`, implementa un diseño oscuro con efectos de iluminación neural, desenfoques de fondo (backdrop-blur) y animaciones de alta fidelidad.
 - **React Ready**: El proyecto cuenta con soporte para React (`src/App.tsx`), permitiendo una migración modular a componentes de estado complejo si se requiere.
 
+### 3. Arquitectura Multicloud (Vercel & Cloudflare Pages)
+La plataforma está optimizada para desplegarse de manera redundante en múltiples nubes sin fricción:
+- **Cloudflare Pages**: Utiliza un modelo de ejecución distribuida en el Edge. 
+  - **Assets Estáticos**: Configurado nativamente mediante `wrangler.json` usando `"not_found_handling": "single-page-application"` para evitar colisiones de rutas.
+  - **Edge Functions**: Las peticiones a la API bajo `/api/models/*` son procesadas por la función Edge de alto rendimiento en `/functions/api/models/[[type]].ts`.
+  - **Seguridad**: Reglas de enrutamiento optimizadas mediante `/public/_routes.json` para delegar el procesamiento al motor Edge de Cloudflare únicamente en rutas dinámicas.
+- **Vercel / Cloud Run**: Utiliza la arquitectura serverless tradicional basada en Node.js y Express mediante `server.ts` y `vercel.json` con soporte completo de rate-limiting e IP forwarding.
+
 ---
 
 ## 📡 Conexiones y Endpoints

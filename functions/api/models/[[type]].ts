@@ -33,11 +33,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Pr
   }
 }
 
-export const onRequest = async (context: {
-  request: Request;
-  params: Record<string, string | string[]>;
-  env: Env;
-}) => {
+export const onRequest = async (context: any) => {
   const { request, params } = context;
   
   // Only allow GET requests
@@ -101,10 +97,21 @@ export const onRequest = async (context: {
     const targetUrl = `${baseUrl}?${queryParams.toString()}`;
     console.log(`[Cloudflare Pages - Proxy] Fetching: ${targetUrl}`);
 
-    // Fetch from target with retry mechanism
+    // Fetch from target with retry mechanism & high-fidelity browser headers
     const data = await withRetry(async () => {
-      const response = await fetch(targetUrl);
-      if (!response.ok) throw new Error(`API Status ${response.status}`);
+      const response = await fetch(targetUrl, {
+        headers: {
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Language": "es-ES,es;q=0.9,en;q=0.8,en-US;q=0.7",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Referer": "https://go.whitetrafsa.com/",
+          "Origin": "https://go.whitetrafsa.com",
+          "Cache-Control": "no-cache"
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`API Status ${response.status} (${response.statusText})`);
+      }
       return response.json();
     });
 
@@ -122,8 +129,12 @@ export const onRequest = async (context: {
     });
 
   } catch (error) {
-    console.log(`[Cloudflare Pages - Error] Reason: ${error instanceof Error ? error.message : "Network failure"}`);
-    return new Response(JSON.stringify({ error: "Discovery link unstable. Retrying synchronization." }), {
+    const errorMsg = error instanceof Error ? error.message : "Network failure";
+    console.log(`[Cloudflare Pages - Error] Reason: ${errorMsg}`);
+    return new Response(JSON.stringify({ 
+      error: "Discovery link unstable. Retrying synchronization.",
+      details: errorMsg
+    }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",
